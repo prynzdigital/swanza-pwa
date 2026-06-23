@@ -12,7 +12,14 @@ export default async function CustomerLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { userId } = await auth();
+  let userId: string | null = null;
+  try {
+    const authResult = await auth();
+    userId = authResult.userId;
+  } catch {
+    // Clerk not initialised (missing/invalid key) — send to sign-in
+    redirect("/sign-in");
+  }
 
   if (!userId) {
     redirect("/sign-in");

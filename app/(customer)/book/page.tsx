@@ -16,10 +16,16 @@ export default async function BookServicePage() {
   const { userId } = await auth();
   if (!userId) redirect("/sign-in");
 
-  // Fetch available service types from DB
-  const serviceTypes = await prisma.serviceType.findMany({
-    orderBy: { basePrice: "asc" },
-  });
+  // Fetch available service types — graceful empty if DB not yet configured
+  let serviceTypes: Awaited<ReturnType<typeof prisma.serviceType.findMany>> = [];
+  try {
+    serviceTypes = await prisma.serviceType.findMany({
+      orderBy: { basePrice: "asc" },
+    });
+  } catch {
+    // DB not reachable; layout.tsx will have already shown the setup guide
+    // if the upsert failed — this is a belt-and-suspenders guard
+  }
 
   return (
     <AppShell role="customer" pageTitle="Book a Clean" showBack>
