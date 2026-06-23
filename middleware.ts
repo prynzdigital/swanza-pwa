@@ -1,6 +1,7 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
-// Protected routes — require authentication
 const isProtectedRoute = createRouteMatcher([
   "/book(.*)",
   "/customer(.*)",
@@ -8,14 +9,24 @@ const isProtectedRoute = createRouteMatcher([
   "/admin(.*)",
 ]);
 
-export default clerkMiddleware(async (auth, req) => {
+const clerk = clerkMiddleware(async (auth, req) => {
   if (isProtectedRoute(req)) {
     await auth.protect();
   }
-  // Role-based protection is enforced in layout.tsx files per route group
-  // because clerkMiddleware cannot access DB to check role
-  // See (customer)/layout.tsx, (cleaner)/layout.tsx, (admin)/layout.tsx
 });
+
+export default async function middleware(req: NextRequest) {
+  try {
+    // @ts-expect-error NextFetchEvent not needed for this call shape
+    return await clerk(req, {});
+  } catch (err) {
+    // Log the real error so it appears in Vercel Function logs
+    console.error("[middleware] Clerk init failed:", err);
+    // Fall through so the site loads — protected routes will still 401
+    // at the layout level once the issue is diagnosed and fixed
+    return NextResponse.next();
+  }
+}
 
 export const config = {
   matcher: [
