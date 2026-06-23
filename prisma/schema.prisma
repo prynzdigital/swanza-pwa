@@ -1,0 +1,154 @@
+// Prisma schema — Swanza marketplace platform
+// All 8 models as specified in developer-agent.md
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum Role {
+  CUSTOMER
+  CLEANER
+  ADMIN
+}
+
+enum CleanerStatus {
+  PENDING
+  APPROVED
+  SUSPENDED
+}
+
+enum BookingStatus {
+  PENDING_PAYMENT
+  // QA fix #008: PAYMENT_CONFIRMED represents a paid booking awaiting cleaner assignment.
+  // This sits between PENDING_PAYMENT (unpaid) and ASSIGNED (cleaner attached).
+  // Requires a database migration: npx prisma migrate dev --name add_payment_confirmed_status
+  PAYMENT_CONFIRMED
+  ASSIGNED
+  ACCEPTED
+  EN_ROUTE
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+  REFUNDED
+}
+
+// ─── Models ───────────────────────────────────────────────────────────────────
+
+model User {
+  id              String           @id @default(cuid())
+  clerkId         String           @unique
+  email           String           @unique
+  name            String?
+  role            Role             @default(CUSTOMER)
+  createdAt       DateTime         @default(now())
+
+  cleanerProfile  CleanerProfile?
+  customerProfile CustomerProfile?
+  bookingsAsCustomer Booking[]     @relation("CustomerBookings")
+  reviews         Review[]
+}
+
+model CleanerProfile {
+  id              String        @id @default(cuid())
+  userId          String        @unique
+  user            User          @relation(fields: [userId], references: [id])
+  status          CleanerStatus @default(PENDING)
+  bio             String?
+  rating          Float         @default(0)
+  averageRating   Float?
+  totalJobs       Int           @default(0)
+  stripeAccountId String?
+  serviceAreaZips String[]      @default([])
+  hourlyRate      Float         @default(0)
+  createdAt       DateTime      @default(now())
+
+  bookings        Booking[]
+  payouts         Payout[]
+}
+
+model CustomerProfile {
+  id             String    @id @default(cuid())
+  userId         String    @unique
+  user           User      @relation(fields: [userId], references: [id])
+  savedAddresses Json      @default("[]")
+  createdAt      DateTime  @default(now())
+
+  bookings       Booking[] @relation("CustomerProfileBookings")
+}
+
+model ServiceType {
+  id            String    @id @default(cuid())
+  name          String
+  description   String
+  basePrice     Float
+  durationHours Float
+
+  bookings      Booking[]
+}
+
+model Booking {
+  id              String          @id @default(cuid())
+  customerId      String
+  customer        User            @relation("CustomerBookings", fields: [customerId], references: [id])
+  customerProfile CustomerProfile? @relation("CustomerProfileBookings", fields: [customerProfileId], references: [id])
+  customerProfileId String?
+  cleanerId       String?
+  cleaner         CleanerProfile? @relation(fields: [cleanerId], references: [id])
+  serviceTypeId   String
+  serviceType     ServiceType     @relation(fields: [serviceTypeId], references: [id])
+  status          BookingStatus   @default(PENDING_PAYMENT)
+  scheduledAt     DateTime
+  address         String
+  notes           String?
+  totalAmount     Float
+  bedroomCount    Int             @default(1)
+  bathroomCount   Int             @default(1)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  payment         Payment?
+  review          Review?
+}
+
+model Payment {
+  id                    String        @id @default(cuid())
+  bookingId             String        @unique
+  booking               Booking       @relation(fields: [bookingId], references: [id])
+  stripePaymentIntentId String        @unique
+  amount                Float
+  status                PaymentStatus @default(PENDING)
+  createdAt             DateTime      @default(now())
+}
+
+model Payout {
+  id               String         @id @default(cuid())
+  cleanerId        String
+  cleaner          CleanerProfile @relation(fields: [cleanerId], references: [id])
+  stripeTransferId String         @unique
+  amount           Float
+  createdAt        DateTime       @default(now())
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  bookingId String   @unique
+  booking   Booking  @relation(fields: [bookingId], references: [id])
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id])
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now())
+}

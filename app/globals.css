@@ -1,0 +1,141 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Google Fonts ──────────────────────────────────────────────────────────── */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap");
+
+/* ── CSS Custom Properties ─────────────────────────────────────────────────── */
+:root {
+  --font-inter: "Inter", system-ui, sans-serif;
+  --font-jetbrains-mono: "JetBrains Mono", monospace;
+}
+
+/* ── Base Styles ────────────────────────────────────────────────────────────── */
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    font-family: var(--font-inter);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-surface-page text-text-primary;
+  }
+
+  /* Tabular numerals for all mono data */
+  .font-mono {
+    font-feature-settings: "tnum" 1, "zero" 1;
+  }
+
+  /* Focus rings — must always be visible */
+  :focus-visible {
+    outline: 2px solid theme("colors.primary-light");
+    outline-offset: 2px;
+  }
+
+  /* Focus ring on dark backgrounds */
+  .dark-shell :focus-visible {
+    outline-color: theme("colors.primary");
+    outline-offset: 2px;
+  }
+
+  /* Safe area support for PWA on notched devices */
+  .safe-area-inset-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+
+  .safe-area-inset-top {
+    padding-top: env(safe-area-inset-top, 0);
+  }
+}
+
+/* ── Component Utilities ────────────────────────────────────────────────────── */
+@layer utilities {
+  /* Pulsing status ring animation — Booking Tracker current state */
+  .ring-pulse-assigned {
+    @apply animate-ring-pulse;
+    color: theme("colors.status-assigned");
+  }
+
+  .ring-pulse-en-route {
+    @apply animate-ring-pulse;
+    color: theme("colors.status-en-route");
+  }
+
+  .ring-pulse-in-progress {
+    @apply animate-ring-pulse;
+    color: theme("colors.status-in-progress");
+  }
+
+  /* Skeleton shimmer animation */
+  .skeleton-shimmer {
+    background: linear-gradient(
+      90deg,
+      theme("colors.surface-card") 0%,
+      theme("colors.surface-divider") 50%,
+      theme("colors.surface-card") 100%
+    );
+    background-size: 200% 100%;
+    @apply animate-shimmer;
+  }
+
+  /* Truncate with ellipsis — utility */
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+/* ── Clerk Component Theme Overrides ────────────────────────────────────────── */
+/* Applied via Clerk appearance prop in components — these are fallback globals */
+.cl-formButtonPrimary {
+  background-color: theme("colors.primary-light") !important;
+  color: white !important;
+  font-family: var(--font-inter) !important;
+}
+
+.cl-card {
+  border-radius: 12px !important;
+}
+
+/* ── Scrollbar Styling ────────────────────────────────────────────────────── */
+@media (min-width: 768px) {
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: theme("colors.surface-app");
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: theme("colors.surface-divider");
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: theme("colors.text-muted-dark");
+  }
+}
+
+/* ── Print Styles ─────────────────────────────────────────────────────────── */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
