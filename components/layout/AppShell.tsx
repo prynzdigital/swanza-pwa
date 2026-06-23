@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React from "react";
 import Link from "next/link";
@@ -8,7 +8,7 @@ import { BottomNav } from "./BottomNav";
 import { UserButton } from "@clerk/nextjs";
 import { ChevronLeft } from "lucide-react";
 
-// Source: design-system.md §Nav/TopBar + §Nav/AppShell
+// Source: design-system.md Â§Nav/TopBar + Â§Nav/AppShell
 // Dark shell for all authenticated views.
 // TopBar: 56px fixed top. BottomNav: 60px fixed bottom (mobile only).
 // Desktop: sidebar replaces bottom nav.
@@ -39,7 +39,7 @@ export function AppShell({
 
   return (
     <div className="min-h-screen bg-surface-app dark-shell">
-      {/* TopBar — fixed, 56px + safe area top */}
+      {/* TopBar â€” fixed, 56px + safe area top */}
       <header
         className={cn(
           "fixed top-0 left-0 right-0 z-40",
@@ -62,7 +62,7 @@ export function AppShell({
           <Link
             href={`/${role}/dashboard`}
             className="text-lg font-extrabold text-text-on-dark tracking-tight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-sm"
-            aria-label="Swanza — go to dashboard"
+            aria-label="Swanza â€” go to dashboard"
           >
             Swanza
           </Link>
@@ -87,11 +87,11 @@ export function AppShell({
           >
             {ROLE_LABELS[role]}
           </span>
-          <UserButton afterSignOutUrl="/" />
+          <UserButton />
         </div>
       </header>
 
-      {/* Main content area — offset for top bar, bottom padding for bottom nav on mobile */}
+      {/* Main content area â€” offset for top bar, bottom padding for bottom nav on mobile */}
       <main
         className={cn(
           "pt-14 pb-20 md:pb-0", // top bar offset + bottom nav clearance on mobile
@@ -102,7 +102,7 @@ export function AppShell({
         {children}
       </main>
 
-      {/* Bottom nav — mobile only */}
+      {/* Bottom nav â€” mobile only */}
       <BottomNav role={role} />
     </div>
   );

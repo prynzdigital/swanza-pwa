@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState } from "react";
 import Link from "next/link";
@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { Menu, X } from "lucide-react";
 import { SignInButton, UserButton, useUser } from "@clerk/nextjs";
 
-// Source: wireframes.md — Public Nav/PublicHeader
+// Source: wireframes.md â€” Public Nav/PublicHeader
 // Sticky header, light background. Desktop nav + mobile hamburger.
 // "Book a Cleaner" is always the dominant primary CTA.
 
@@ -31,7 +31,7 @@ export function Header() {
         <Link
           href="/"
           className="text-xl font-extrabold text-text-primary tracking-tight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-light rounded-sm"
-          aria-label="Swanza — go to homepage"
+          aria-label="Swanza â€” go to homepage"
         >
           Swanza
         </Link>
@@ -67,7 +67,7 @@ export function Header() {
               </Button>
             </SignInButton>
           )}
-          {isSignedIn && <UserButton afterSignOutUrl="/" />}
+          {isSignedIn && <UserButton />}
           <Button asChild size="default">
             <Link href="/book">Book a Cleaner</Link>
           </Button>
@@ -127,7 +127,7 @@ export function Header() {
             )}
             {isSignedIn && (
               <div className="flex items-center px-4 h-11">
-                <UserButton afterSignOutUrl="/" />
+                <UserButton />
               </div>
             )}
             <Button asChild size="full" className="mt-2">
