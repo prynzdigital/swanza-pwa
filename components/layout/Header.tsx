@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import { Menu, X } from "lucide-react";
-import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
+import { SignInButton, UserButton, useUser } from "@clerk/nextjs";
 
 // Source: wireframes.md — Public Nav/PublicHeader
 // Sticky header, light background. Desktop nav + mobile hamburger.
@@ -22,6 +22,7 @@ const NAV_LINKS = [
 export function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
+  const { isSignedIn } = useUser();
 
   return (
     <header className="sticky top-0 z-50 bg-surface-page border-b border-border">
@@ -59,16 +60,14 @@ export function Header() {
 
         {/* Desktop CTA */}
         <div className="hidden md:flex items-center gap-3">
-          <SignedOut>
+          {!isSignedIn && (
             <SignInButton mode="modal">
               <Button variant="ghost" size="sm">
                 Sign In
               </Button>
             </SignInButton>
-          </SignedOut>
-          <SignedIn>
-            <UserButton afterSignOutUrl="/" />
-          </SignedIn>
+          )}
+          {isSignedIn && <UserButton afterSignOutUrl="/" />}
           <Button asChild size="default">
             <Link href="/book">Book a Cleaner</Link>
           </Button>
@@ -117,7 +116,7 @@ export function Header() {
               </Link>
             ))}
             <div className="border-t border-border my-2" />
-            <SignedOut>
+            {!isSignedIn && (
               <Link
                 href="/sign-in"
                 className="flex items-center h-11 px-4 rounded-md text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-section-alt"
@@ -125,12 +124,12 @@ export function Header() {
               >
                 Sign In
               </Link>
-            </SignedOut>
-            <SignedIn>
+            )}
+            {isSignedIn && (
               <div className="flex items-center px-4 h-11">
                 <UserButton afterSignOutUrl="/" />
               </div>
-            </SignedIn>
+            )}
             <Button asChild size="full" className="mt-2">
               <Link href="/book" onClick={() => setMobileOpen(false)}>
                 Book a Cleaner
